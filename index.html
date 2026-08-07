@@ -925,6 +925,19 @@
     <label style="font-size: 0.8rem; color: #FFD700; display: block; margin-bottom: 6px;">MESSAGE</label>
     <textarea name="message" rows="4" placeholder="YOUR MESSAGE..." class="hover-trigger" required></textarea>
   </div>
+  <!-- Mobile / WhatsApp Number Field -->
+  <div class="form-group">
+    <label for="phone">MOBILE / WHATSAPP NUMBER *</label>
+    <input 
+      type="tel" 
+      id="phone" 
+      name="phone" 
+      placeholder="+91 9876543210" 
+      pattern="[0-9]{10}" 
+      title="Please enter a valid 10-digit mobile number"
+      required
+    />
+  </div>
 
   <button type="submit" id="submitBtn" class="btn btn-primary hover-trigger" style="width: 100%; justify-content: center;">
     SEND TRANSMISSION ⚡
