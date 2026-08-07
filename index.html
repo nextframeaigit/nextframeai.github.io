@@ -985,296 +985,286 @@
   </div>
 
   <script>
-    // --- CANVAS ATMOSPHERE ENGINE (Embers, Rain, Fog, Lightning) ---
-    const canvas = document.getElementById('cinematic-canvas');
-    const ctx = canvas.getContext('2d');
-    const flashEl = document.getElementById('lightning-flash');
-    const viewportEl = document.getElementById('app-viewport');
-    const hudStatus = document.getElementById('hud-status');
-    const cursorTorch = document.getElementById('cursor-torch');
+// --- CANVAS ATMOSPHERE ENGINE (Embers, Rain, Fog, Lightning) ---
+const canvas = document.getElementById('cinematic-canvas');
+const ctx = canvas.getContext('2d');
+const flashEl = document.getElementById('lightning-flash');
+const viewportEl = document.getElementById('app-viewport');
+const hudStatus = document.getElementById('hud-status');
+const cursorTorch = document.getElementById('cursor-torch');
 
-    let width, height;
+let width, height;
 
-    function resizeCanvas() {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+function resizeCanvas() {
+  width = canvas.width = window.innerWidth;
+  height = canvas.height = window.innerHeight;
+}
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+
+// Mouse Tracking
+let mouse = { x: width / 2, y: height / 2, targetX: width / 2, targetY: height / 2 };
+window.addEventListener('mousemove', (e) => {
+  mouse.targetX = e.clientX;
+  mouse.targetY = e.clientY;
+});
+
+// Custom Cursor Movement
+const cursorDot = document.getElementById('cursor-dot');
+const cursorRing = document.getElementById('cursor-ring');
+
+function updateCursor() {
+  mouse.x += (mouse.targetX - mouse.x) * 0.2;
+  mouse.y += (mouse.targetY - mouse.y) * 0.2;
+
+  cursorDot.style.transform = `translate(${mouse.targetX}px, ${mouse.targetY}px) translate(-50%, -50%)`;
+  cursorRing.style.transform = `translate(${mouse.x}px, ${mouse.y}px) translate(-50%, -50%)`;
+  
+  // Sync Torch Light to Cursor
+  cursorTorch.style.setProperty('--mouse-x', mouse.x + 'px');
+  cursorTorch.style.setProperty('--mouse-y', mouse.y + 'px');
+
+  requestAnimationFrame(updateCursor);
+}
+updateCursor();
+
+// Hover triggers for cursor scale & UI interactions
+document.querySelectorAll('.hover-trigger').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+});
+
+// --- PARTICLE SYSTEMS ---
+// 1. Embers (Fire Particles - synced visually with the video source)
+const EMBER_COUNT = 150;
+const embers = [];
+for (let i = 0; i < EMBER_COUNT; i++) {
+  embers.push({
+    x: Math.random() * width,
+    y: height - Math.random() * (height * 0.35), 
+    size: Math.random() * 3 + 1,
+    speedY: -(Math.random() * 2.2 + 0.8), 
+    speedX: (Math.random() - 0.5) * 1.2,
+    opacity: Math.random() * 0.8 + 0.2,
+    hue: Math.random() < 0.7 ? 5 : 40 
+  });
+}
+
+// 2. Rain Streaks (Storm intensified)
+const RAIN_COUNT = 250; 
+const raindrops = [];
+for (let i = 0; i < RAIN_COUNT; i++) {
+  raindrops.push({
+    x: Math.random() * width,
+    y: Math.random() * height,
+    length: Math.random() * 30 + 15,
+    speed: Math.random() * 16 + 12, 
+    opacity: Math.random() * 0.35 + 0.1
+  });
+}
+
+// 3. Lightning Controller
+let lastLightning = Date.now();
+let lightningInterval = 6000; 
+
+function triggerLightning() {
+  flashEl.style.opacity = '0.7';
+  viewportEl.classList.add('shake');
+
+  setTimeout(() => { flashEl.style.opacity = '0'; }, 90);
+  setTimeout(() => { flashEl.style.opacity = '0.35'; }, 160);
+  setTimeout(() => {
+    flashEl.style.opacity = '0';
+    viewportEl.classList.remove('shake');
+  }, 280);
+}
+
+// Frame Counter for Hud
+let frameCount = 0;
+let fps = 60;
+let lastFpsTime = Date.now();
+
+// --- MAIN ANIMATION LOOP ---
+function render() {
+  frameCount++;
+  const now = Date.now();
+  if (now - lastFpsTime >= 1000) {
+    fps = frameCount;
+    frameCount = 0;
+    lastFpsTime = now;
+    hudStatus.innerText = `${fps} FPS | ENGINE: WebGL OPTIMIZED`;
+  }
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = 'rgba(5, 5, 8, 0.25)';
+  ctx.fillRect(0, 0, width, height);
+
+  // Render Rain
+  ctx.strokeStyle = 'rgba(185, 215, 255, 0.25)';
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  for (let i = 0; i < RAIN_COUNT; i++) {
+    const r = raindrops[i];
+    ctx.moveTo(r.x, r.y);
+    ctx.lineTo(r.x - r.length * 0.25, r.y + r.length);
+
+    r.y += r.speed;
+    r.x -= r.speed * 0.25; 
+
+    if (r.y > height) {
+      r.y = -20;
+      r.x = Math.random() * width + 100; 
     }
-    window.addEventListener('resize', resizeCanvas);
-    resizeCanvas();
+  }
+  ctx.stroke();
 
-    // Mouse Tracking
-    let mouse = { x: width / 2, y: height / 2, targetX: width / 2, targetY: height / 2 };
-    window.addEventListener('mousemove', (e) => {
-      mouse.targetX = e.clientX;
-      mouse.targetY = e.clientY;
-    });
+  // Render Embers with Mouse Repulsion
+  for (let i = 0; i < EMBER_COUNT; i++) {
+    const e = embers[i];
 
-    // Custom Cursor Movement
-    const cursorDot = document.getElementById('cursor-dot');
-    const cursorRing = document.getElementById('cursor-ring');
-
-    function updateCursor() {
-      mouse.x += (mouse.targetX - mouse.x) * 0.2;
-      mouse.y += (mouse.targetY - mouse.y) * 0.2;
-
-      cursorDot.style.transform = `translate(${mouse.targetX}px, ${mouse.targetY}px) translate(-50%, -50%)`;
-      cursorRing.style.transform = `translate(${mouse.x}px, ${mouse.y}px) translate(-50%, -50%)`;
-      
-      // Sync Torch Light to Cursor
-      cursorTorch.style.setProperty('--mouse-x', mouse.x + 'px');
-      cursorTorch.style.setProperty('--mouse-y', mouse.y + 'px');
-
-      requestAnimationFrame(updateCursor);
-    }
-    updateCursor();
-
-    // Hover triggers for cursor scale & UI interactions
-    document.querySelectorAll('.hover-trigger').forEach(el => {
-      el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
-      el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
-    });
-
-    // --- PARTICLE SYSTEMS ---
-    // 1. Embers (Fire Particles - synced visually with the video source)
-    const EMBER_COUNT = 150;
-    const embers = [];
-    for (let i = 0; i < EMBER_COUNT; i++) {
-      embers.push({
-        x: Math.random() * width,
-        y: height - Math.random() * (height * 0.35), 
-        size: Math.random() * 3 + 1,
-        speedY: -(Math.random() * 2.2 + 0.8), 
-        speedX: (Math.random() - 0.5) * 1.2,
-        opacity: Math.random() * 0.8 + 0.2,
-        hue: Math.random() < 0.7 ? 5 : 40 
-      });
+    const dx = mouse.x - e.x;
+    const dy = mouse.y - e.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist < 150) {
+      e.x -= (dx / dist) * 2.5;
+      e.y -= (dy / dist) * 2.5;
     }
 
-    // 2. Rain Streaks (Storm intensified)
-    const RAIN_COUNT = 250; 
-    const raindrops = [];
-    for (let i = 0; i < RAIN_COUNT; i++) {
-      raindrops.push({
-        x: Math.random() * width,
-        y: Math.random() * height,
-        length: Math.random() * 30 + 15,
-        speed: Math.random() * 16 + 12, 
-        opacity: Math.random() * 0.35 + 0.1
-      });
+    e.y += e.speedY;
+    e.x += e.speedX + Math.sin(e.y * 0.01) * 0.5;
+    
+    if (e.y < height * 0.6) {
+      e.opacity -= 0.015;
     }
 
-    // 3. Lightning Controller
-    let lastLightning = Date.now();
-    let lightningInterval = 6000; 
-
-    function triggerLightning() {
-      flashEl.style.opacity = '0.7';
-      viewportEl.classList.add('shake');
-
-      setTimeout(() => { flashEl.style.opacity = '0'; }, 90);
-      setTimeout(() => { flashEl.style.opacity = '0.35'; }, 160);
-      setTimeout(() => {
-        flashEl.style.opacity = '0';
-        viewportEl.classList.remove('shake');
-      }, 280);
+    if (e.opacity <= 0 || e.y < 0) {
+      e.y = height + (Math.random() * 20);
+      e.x = Math.random() * width;
+      e.opacity = Math.random() * 0.8 + 0.2;
     }
 
-    // Frame Counter for Hud
-    let frameCount = 0;
-    let fps = 60;
-    let lastFpsTime = Date.now();
+    ctx.fillStyle = `hsla(${e.hue}, 100%, 50%, ${Math.max(0, e.opacity)})`;
+    ctx.shadowBlur = 10;
+    ctx.shadowColor = `hsl(${e.hue}, 100%, 50%)`;
+    ctx.beginPath();
+    ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.shadowBlur = 0; 
+  }
 
-    // --- MAIN ANIMATION LOOP ---
-    function render() {
-      frameCount++;
-      const now = Date.now();
-      if (now - lastFpsTime >= 1000) {
-        fps = frameCount;
-        frameCount = 0;
-        lastFpsTime = now;
-        hudStatus.innerText = `${fps} FPS | ENGINE: WebGL OPTIMIZED`;
+  if (now - lastLightning > lightningInterval) {
+    if (Math.random() < 0.5) {
+      triggerLightning();
+      lastLightning = now;
+      lightningInterval = 6000 + Math.random() * 7000;
+    }
+  }
+
+  requestAnimationFrame(render);
+}
+
+requestAnimationFrame(render);
+
+// --- TEXT SCRAMBLE DECODE EFFECT FOR TITLE ---
+const titleEl = document.getElementById('scramble-title');
+const originalText = "NEXT FRAME AI";
+const chars = "!@#$%^&*()_+-=[]{}|;:,.<>?/ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+if (titleEl) {
+  titleEl.addEventListener('mouseenter', () => {
+    let iteration = 0;
+    clearInterval(titleEl.interval);
+
+    titleEl.interval = setInterval(() => {
+      titleEl.innerText = originalText
+        .split("")
+        .map((char, index) => {
+          if (index < iteration) return originalText[index];
+          return chars[Math.floor(Math.random() * chars.length)];
+        })
+        .join("");
+
+      if (iteration >= originalText.length) {
+        clearInterval(titleEl.interval);
       }
+      iteration += 1 / 3;
+    }, 30);
+  });
+}
 
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = 'rgba(5, 5, 8, 0.25)';
-      ctx.fillRect(0, 0, width, height);
+// Founder Video Modal Controls
+const modal = document.getElementById('founderModal');
+const video = document.getElementById('founderVideo');
 
-      // Render Rain
-      ctx.strokeStyle = 'rgba(185, 215, 255, 0.25)';
-      ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      for (let i = 0; i < RAIN_COUNT; i++) {
-        const r = raindrops[i];
-        ctx.moveTo(r.x, r.y);
-        ctx.lineTo(r.x - r.length * 0.25, r.y + r.length);
+function openFounderModal() {
+  if (modal) modal.style.display = 'flex';
+  if (video) video.play();
+}
 
-        r.y += r.speed;
-        r.x -= r.speed * 0.25; 
+function closeFounderModal() {
+  if (modal) modal.style.display = 'none';
+  if (video) video.pause();
+}
 
-        if (r.y > height) {
-          r.y = -20;
-          r.x = Math.random() * width + 100; 
-        }
-      }
-      ctx.stroke();
+window.onclick = function(e) {
+  if (e.target == modal) {
+    closeFounderModal();
+  }
+}
 
-      // Render Embers with Mouse Repulsion
-      for (let i = 0; i < EMBER_COUNT; i++) {
-        const e = embers[i];
+// --- CONTACT FORM & WEBHOOK HANDLER ---
+const contactForm = document.getElementById('contactForm');
+const statusEl = document.getElementById('form-status');
+const submitBtn = document.getElementById('submitBtn');
+const N8N_WEBHOOK_URL = 'https://eastern-franklin-decisions-greene.trycloudflare.com/webhook/nextframe-contact';
 
-        const dx = mouse.x - e.x;
-        const dy = mouse.y - e.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 150) {
-          e.x -= (dx / dist) * 2.5;
-          e.y -= (dy / dist) * 2.5;
-        }
+if (contactForm) {
+  contactForm.addEventListener('submit', function(e) {
+    e.preventDefault();
 
-        e.y += e.speedY;
-        e.x += e.speedX + Math.sin(e.y * 0.01) * 0.5;
-        
-        if (e.y < height * 0.6) {
-          e.opacity -= 0.015;
-        }
+    submitBtn.innerText = 'TRANSMITTING... ⚡';
+    submitBtn.disabled = true;
+    if (statusEl) statusEl.innerText = '';
 
-        if (e.opacity <= 0 || e.y < 0) {
-          e.y = height + (Math.random() * 20);
-          e.x = Math.random() * width;
-          e.opacity = Math.random() * 0.8 + 0.2;
-        }
+    const formData = new FormData(contactForm);
+    const data = {
+      inquiry_type: formData.get('inquiry_type'),
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      message: formData.get('message')
+    };
 
-        ctx.fillStyle = `hsla(${e.hue}, 100%, 50%, ${Math.max(0, e.opacity)})`;
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = `hsl(${e.hue}, 100%, 50%)`;
-        ctx.beginPath();
-        ctx.arc(e.x, e.y, e.size, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0; 
-      }
-
-      if (now - lastLightning > lightningInterval) {
-        if (Math.random() < 0.5) {
-          triggerLightning();
-          lastLightning = now;
-          lightningInterval = 6000 + Math.random() * 7000;
-        }
-      }
-
-      requestAnimationFrame(render);
-    }
-
-    requestAnimationFrame(render);
-
-    // --- TEXT SCRAMBLE DECODE EFFECT FOR TITLE ---
-    const titleEl = document.getElementById('scramble-title');
-    const originalText = "NEXT FRAME AI";
-    const chars = "!@#$%^&*()_+-=[]{}|;:,.<>?/ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-
-    titleEl.addEventListener('mouseenter', () => {
-      let iteration = 0;
-      clearInterval(titleEl.interval);
-
-      titleEl.interval = setInterval(() => {
-        titleEl.innerText = originalText
-          .split("")
-          .map((char, index) => {
-            if (index < iteration) return originalText[index];
-            return chars[Math.floor(Math.random() * chars.length)];
-          })
-          .join("");
-
-        if (iteration >= originalText.length) {
-          clearInterval(titleEl.interval);
-        }
-        iteration += 1 / 3;
-      }, 30);
-    });
-
-    // Founder Video Modal Controls
-    const modal = document.getElementById('founderModal');
-    const video = document.getElementById('founderVideo');
-
-    function openFounderModal() {
-      modal.style.display = 'flex';
-      video.play();
-    }
-
-    function closeFounderModal() {
-      modal.style.display = 'none';
-      video.pause();
-    }
-
-    window.onclick = function(e) {
-      if (e.target == modal) {
-        closeFounderModal();
-      }
-    }
-
-  const contactForm = document.getElementById('contactForm');
-  const statusEl = document.getElementById('form-status');
-  const submitBtn = document.getElementById('submitBtn');
-    //http://34.224.97.103:5678 n8n webhook url
-  // Testing ke liye: 'https://eastern-franklin-decisions-greene.trycloudflare.com/webhook-test/nextframe-contact'
-  // Live/Publish ke liye: 'https://eastern-franklin-decisions-greene.trycloudflare.com/webhook/nextframe-contact'
-  const N8N_WEBHOOK_URL = 'https://eastern-franklin-decisions-greene.trycloudflare.com/webhook/nextframe-contact';
-
-  if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      submitBtn.innerText = 'TRANSMITTING... ⚡';
-      submitBtn.disabled = true;
-      statusEl.innerText = '';
-
-      const formData = new FormData(contactForm);
-      const data = {
-        inquiry_type: formData.get('inquiry_type'),
-        name: formData.get('name'),
-        email: formData.get('email'),
-        message: formData.get('message')
-      };
-
-      fetch(N8N_WEBHOOK_URL, {
-        method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json' 
-        },
-        body: JSON.stringify(data)
-      })
-      .then(res => {
-        if (res.ok) {
+    fetch(N8N_WEBHOOK_URL, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json' 
+      },
+      body: JSON.stringify(data)
+    })
+    .then(res => {
+      if (res.ok) {
+        if (statusEl) {
           statusEl.innerText = '⚡ TRANSMISSION RECEIVED! WE WILL REACH OUT SOON.';
           statusEl.style.color = '#FFD700';
-          contactForm.reset();
-        } else {
-          throw new Error('Server error');
         }
-      })
-      .catch(() => {
+        contactForm.reset();
+      } else {
+        throw new Error('Server error');
+      }
+    })
+    .catch(() => {
+      if (statusEl) {
         statusEl.innerText = '⚠️ Transmission failed. Please try again.';
         statusEl.style.color = '#E50914';
-      })
-      .finally(() => {
-        submitBtn.innerText = 'SEND TRANSMISSION ⚡';
-        submitBtn.disabled = false;
-      });
+      }
+    })
+    .finally(() => {
+      submitBtn.innerText = 'SEND TRANSMISSION ⚡';
+      submitBtn.disabled = false;
     });
-  }
-  // Example: Form submit JS function ke andar
-const formData = {
-  name: document.getElementById('name').value,
-  email: document.getElementById('email').value,
-  phone: document.getElementById('phone').value, // 👈 Ye line add karni hai
-  inquiry_type: document.getElementById('inquiry_type').value,
-  message: document.getElementById('message').value
-};
-
-// n8n Webhook ko fetch request
-fetch('https://your-n8n-webhook-url', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(formData)
-});
+  });
+}
 </script>
 
 
