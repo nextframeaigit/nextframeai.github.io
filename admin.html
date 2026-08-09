@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NextFrameAI — Studio Control</title>
+<style>
+:root{--bg:#070708;--panel:#101012;--panel2:#151518;--line:#29292d;--text:#f4f4f5;--muted:#8d8d95;--red:#ff202b;--gold:#d7b45a;--green:#55d98b}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:radial-gradient(circle at 80% 0,#26070a 0,transparent 34%),var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Arial,sans-serif}button,input,textarea,select{font:inherit}button{cursor:pointer}
+.app{display:grid;grid-template-columns:230px 1fr;min-height:100vh}.sidebar{border-right:1px solid var(--line);background:#080809;padding:22px 14px;position:sticky;top:0;height:100vh}.brand{display:flex;gap:10px;align-items:center;padding:4px 8px 28px}.brandmark{width:34px;height:34px;border:1px solid #8d7028;border-radius:9px;display:grid;place-items:center;font-weight:800;color:#fff}.brand b{font-size:13px;letter-spacing:.18em}.brand span{display:block;color:#66666d;font-size:9px;letter-spacing:.14em;margin-top:4px}.group{color:#5d5d64;font-size:9px;letter-spacing:.18em;text-transform:uppercase;margin:18px 8px 7px}.nav button{display:flex;gap:10px;align-items:center;width:100%;padding:11px 12px;margin:3px 0;border:1px solid transparent;background:transparent;color:#aaaab0;border-radius:9px;text-align:left}.nav button:hover,.nav button.active{background:#171719;border-color:#2b2b30;color:#fff}.nav i{width:16px;text-align:center;font-style:normal}.side-bottom{position:absolute;bottom:18px;left:14px;right:14px}.status{border:1px solid var(--line);border-radius:10px;padding:12px;background:#0e0e10}.status small{display:block;color:#666;font-size:8px;letter-spacing:.15em}.status strong{font-size:10px;display:block;margin-top:6px}.dot{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:6px}
+main{min-width:0}.topbar{height:74px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 26px;background:rgba(7,7,8,.88);position:sticky;top:0;z-index:5}.crumb{font-size:10px;color:#777}.top-actions{display:flex;gap:8px;align-items:center}.btn{border:1px solid #303036;background:#111114;color:#ddd;border-radius:8px;padding:9px 13px;font-size:10px}.btn:hover{border-color:#555}.btn.primary{background:var(--red);border-color:var(--red);color:#fff}.btn.gold{color:#ffe19a;border-color:#806a31}.profile{position:relative}.profile-btn{display:flex;align-items:center;gap:8px;border:1px solid #303036;background:#111114;color:#ddd;border-radius:18px;padding:5px 10px 5px 5px}.avatar{width:27px;height:27px;border-radius:50%;background:#303036;object-fit:cover}.profile-name{font-size:10px}.profile-menu{display:none;position:absolute;right:0;top:42px;width:220px;background:#111114;border:1px solid #333;border-radius:10px;padding:8px;box-shadow:0 20px 60px #000}.profile-menu.show{display:block}.profile-menu button{display:block;width:100%;border:0;background:transparent;color:#bbb;text-align:left;padding:9px;border-radius:6px}.profile-menu button:hover{background:#1d1d20;color:#fff}.profile-head{padding:9px;border-bottom:1px solid #29292d;margin-bottom:5px}.profile-head b,.profile-head span{display:block}.profile-head span{font-size:9px;color:#777;margin-top:3px}.logout{color:#ff8188!important}
+.content{padding:28px;max-width:1500px;margin:auto}.admin-banner{display:none;border:1px solid rgba(85,217,139,.25);background:rgba(85,217,139,.04);color:#a9c9b5;border-radius:9px;padding:10px 13px;font-size:10px;margin-bottom:16px}.admin-banner.show{display:block}.view{display:none}.view.active{display:block}.hero{border:1px solid #36161a;border-radius:16px;padding:28px;background:linear-gradient(120deg,#17080a,#0d0d0f 60%);margin-bottom:16px}.eyebrow{font-size:9px;letter-spacing:.18em;color:#a46f73}.title{font-size:29px;line-height:1.1;margin:8px 0}.subtitle{color:#888991;font-size:12px;line-height:1.65;max-width:850px}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px}.kpi,.panel{border:1px solid var(--line);border-radius:12px;background:rgba(14,14,16,.82)}.kpi{padding:18px}.kpi small{color:#666;font-size:8px;letter-spacing:.15em}.kpi strong{display:block;font-size:28px;margin:7px 0}.kpi span{color:#777;font-size:9px}.two{display:grid;grid-template-columns:1.2fr .8fr;gap:14px}.panel-head{padding:15px 17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.panel-head h3{font-size:11px;margin:0;letter-spacing:.08em}.rows{padding:8px}.row{display:flex;align-items:center;gap:12px;padding:12px 10px;border-bottom:1px solid #1e1e22}.row:last-child{border-bottom:0}.num,.mini{font-size:9px;color:#777;width:24px}.grow{flex:1;min-width:0}.grow b{display:block;font-size:11px}.grow span{display:block;color:#777;font-size:9px;margin-top:4px}.pill{font-size:8px;border:1px solid #35353a;padding:4px 7px;border-radius:99px;color:#999}.pill.green{color:#6ee7a2;border-color:#285f43}.pill.gold{color:#e2c36f;border-color:#63542d}.iconbtn{border:1px solid #333;background:#151517;color:#bbb;border-radius:6px;padding:6px 9px}.empty{padding:30px;text-align:center;color:#666;font-size:10px}.view-title{margin:0 0 5px;font-size:22px}.view-sub{margin:0 0 20px;color:#777;font-size:11px}
+.service-layout{display:grid;grid-template-columns:290px 1fr;gap:14px}.service-list{padding:8px}.service-item{padding:13px;border:1px solid transparent;border-radius:9px;margin-bottom:5px;cursor:pointer}.service-item:hover,.service-item.active{background:#171719;border-color:#39393f}.service-item b{display:block;font-size:10px}.service-item span{display:block;color:#777;font-size:8px;margin-top:4px}.editor{padding:20px}.editor-head{display:flex;justify-content:space-between;gap:15px;margin-bottom:18px}.editor-head h2{margin:3px 0}.editor-actions{display:flex;gap:7px;align-items:flex-start}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field{min-width:0}.field.full{grid-column:1/-1}.field label{display:block;color:#777;font-size:8px;letter-spacing:.08em;text-transform:uppercase;margin:0 0 6px}.field input,.field textarea,.field select{width:100%;border:1px solid #303036;background:#0c0c0e;color:#eee;border-radius:7px;padding:10px;font-size:11px;outline:none}.field textarea{min-height:90px;resize:vertical}.field input:focus,.field textarea:focus,.field select:focus{border-color:#666}.subgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-top:12px}.subitem{border:1px solid #29292d;background:#111114;border-radius:9px;padding:12px;display:flex;align-items:center;gap:10px}.subitem>div:nth-child(2){flex:1}.subitem b{font-size:10px}.subitem span{display:block;color:#777;font-size:8px;margin-top:4px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:30;align-items:center;justify-content:center;padding:20px}.modal.show{display:flex}.modal-card{width:min(850px,100%);max-height:90vh;overflow:auto;background:#111114;border:1px solid #38383e;border-radius:14px;box-shadow:0 30px 100px #000}.modal-head{padding:15px 18px;border-bottom:1px solid #29292d;display:flex;justify-content:space-between}.modal-head h3{margin:0;font-size:13px}.modal-body{padding:18px}.code{background:#09090a;border:1px solid #252529;padding:15px;border-radius:8px;white-space:pre-wrap;word-break:break-word;font:10px/1.55 ui-monospace,SFMono-Regular,Consolas,monospace;color:#bbb}
+.auth-overlay{position:fixed;inset:0;background:#050506;z-index:100;display:flex;align-items:center;justify-content:center}.auth-overlay.hidden{display:none}.auth-card{width:min(440px,92vw);padding:35px;border:1px solid #333;border-radius:16px;background:linear-gradient(145deg,#151012,#0d0d0f);text-align:center}.nfmark{width:48px;height:48px;border:1px solid #9b782a;border-radius:12px;display:grid;place-items:center;margin:0 auto 18px;font-weight:900}.auth-card h1{font-size:24px;margin:0 0 9px}.auth-card p{color:#777;font-size:11px;line-height:1.6}.auth-error{display:none;color:#ff9299;background:#2a0d10;border:1px solid #6c252c;padding:9px;border-radius:7px;font-size:9px;margin:12px 0}.auth-error.show{display:block}.google-btn{width:100%;border:1px solid #444;background:#fff;color:#111;padding:12px;border-radius:8px;font-weight:700}.google-icon{margin-right:8px}.auth-note{font-size:8px!important;color:#555!important}
+@media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.nav{display:flex;flex-wrap:wrap}.group{display:none}.side-bottom{display:none}.topbar{position:static}.kpis{grid-template-columns:1fr 1fr}.two,.service-layout{grid-template-columns:1fr}.subgrid,.formgrid{grid-template-columns:1fr}.field.full{grid-column:auto}.top-actions .btn:nth-child(-n+3){display:none}}
+</style>
+</head>
+<body>
+
+<div id="authOverlay" class="auth-overlay">
+  <div class="auth-card">
+    <div class="nfmark">NF</div>
+    <div class="eyebrow">NEXTFRAMEAI / SECURE STUDIO CONTROL</div>
+    <h1>Sign in to Studio Control</h1>
+    <p>Use the authorized Google account to manage NextFrameAI content.</p>
+    <div id="authError" class="auth-error"></div>
+    <button class="google-btn" onclick="clearAuthError();signInWithGoogle()"><span class="google-icon">G</span> Continue with Google</button>
+    <p class="auth-note">Firebase Authentication · Google · Admin: info@nextframeai.in</p>
+  </div>
+</div>
+
+<div class="app auth-locked" id="adminApp">
+<aside class="sidebar">
+  <div class="brand"><div class="brandmark">NF</div><div><b>NEXTFRAMEAI</b><span>STUDIO CONTROL</span></div></div>
+  <nav class="nav">
+    <div class="group">Control</div>
+    <button class="active" data-view="dashboard"><i>⌂</i><span>Command Center</span></button>
+    <button data-view="services"><i>◈</i><span>Services</span></button>
+    <button data-view="hero"><i>◆</i><span>Hero & Banners</span></button>
+    <button data-view="blocks"><i>▦</i><span>Content Blocks</span></button>
+    <div class="group">Media</div>
+    <button data-view="media"><i>◉</i><span>Media Library</span></button>
+    <button data-view="blog"><i>✎</i><span>Blog & Updates</span></button>
+    <div class="group">System</div>
+    <button data-view="settings"><i>⚙</i><span>Site Settings</span></button>
+  </nav>
+  <div class="side-bottom"><div class="status"><small>BACKEND STATUS</small><strong><span class="dot"></span><span id="backendStatus">FIREBASE / N8N READY</span></strong><span id="backendDetail" style="color:#686972;font-size:9px;display:block;margin-top:5px">Remote CMS sync enabled</span></div></div>
+</aside>
+
+<main>
+<header class="topbar">
+  <div class="crumb">NEXTFRAMEAI / <b id="crumb">Dashboard</b></div>
+  <div class="top-actions">
+    <button class="btn" onclick="importJSON()">Import</button>
+    <button class="btn" onclick="exportJSON()">Export</button>
+    <button class="btn" onclick="payloadPreview()">API Contract</button>
+    <button class="btn" onclick="preview()">Preview site</button>
+    <button class="btn primary" onclick="publishAll()">Publish / Sync</button>
+    <div class="profile">
+      <button class="profile-btn" onclick="toggleProfileMenu()"><img id="profileAvatar" class="avatar" alt="Admin"><span id="profileName" class="profile-name">Admin</span><span>⌄</span></button>
+      <div id="profileMenu" class="profile-menu">
+        <div class="profile-head"><b id="profileFullName">Not signed in</b><span id="profileEmailFull">Google account required</span></div>
+        <button onclick="nav('settings');toggleProfileMenu()">⚙ Admin Profile & Settings</button>
+        <button onclick="loadRemote();toggleProfileMenu()">↻ Reload from Firestore</button>
+        <button onclick="payloadPreview();toggleProfileMenu()">⌁ API Contract</button>
+        <button class="logout" onclick="signOutAdmin();toggleProfileMenu()">↪ Sign out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="content">
+<div id="authBanner" class="admin-banner">● <b>Authenticated Admin</b> · <span id="profileEmail">Google account verified</span> · <span id="syncText">CMS sync ready</span></div>
+
+<section class="view active" id="view-dashboard">
+  <div class="hero"><div class="eyebrow">STUDIO CONTROL / COMMAND CENTER</div><div class="title">Control the frame. Not the code.</div><div class="subtitle">Edit services, sub-services, hero content, blocks, media, blog and site settings. Saves are written through Firebase-authenticated n8n into Firestore.</div></div>
+  <div class="kpis">
+    <div class="kpi"><small>LIVE SERVICES</small><strong id="kServices">6</strong><span>Main categories</span></div>
+    <div class="kpi"><small>SUB-SERVICES</small><strong id="kSubs">24</strong><span>Expandable branches</span></div>
+    <div class="kpi"><small>MEDIA RECORDS</small><strong id="kMedia">0</strong><span>GCS / YouTube refs</span></div>
+    <div class="kpi"><small>DRAFTS</small><strong id="kDrafts">0</strong><span>Awaiting publish</span></div>
+  </div>
+  <div class="two">
+    <div class="panel"><div class="panel-head"><h3>SERVICE ARCHITECTURE</h3></div><div class="rows" id="serviceSnapshot"></div></div>
+    <div class="panel"><div class="panel-head"><h3>SYSTEM STATE</h3></div><div class="rows" id="activity"></div></div>
+  </div>
+</section>
+
+<section class="view" id="view-services">
+  <h2 class="view-title">Services</h2><p class="view-sub">Main service architecture and four expandable branches per service.</p>
+  <div class="service-layout">
+    <div class="panel"><div class="panel-head"><h3>SERVICE TREE</h3></div><div class="service-list"><input id="serviceSearch" placeholder="Search services..." style="width:100%;padding:10px;background:#0b0b0d;border:1px solid #303036;color:#eee;border-radius:7px;margin-bottom:8px"><div id="serviceList"></div></div></div>
+    <div class="panel editor" id="serviceEditor"></div>
+  </div>
+</section>
+
+<section class="view" id="view-hero">
+  <h2 class="view-title">Hero & Banners</h2><p class="view-sub">Control the public hero headline, media and CTA.</p>
+  <div class="panel"><div class="panel-head"><h3>HERO CONTENT</h3></div><div class="editor" id="heroForm"></div></div>
+</section>
+
+<section class="view" id="view-blocks">
+  <h2 class="view-title">Content Blocks</h2><p class="view-sub">Reusable homepage content blocks.</p>
+  <div class="panel"><div class="panel-head"><h3>PAGE BLOCKS</h3><button class="btn primary" onclick="addBlock()">+ Add block</button></div><div class="rows" id="blockList"></div></div>
+</section>
+
+<section class="view" id="view-media">
+  <h2 class="view-title">Media Library</h2><p class="view-sub">GCS paths and YouTube references stored through the CMS.</p>
+  <div class="panel"><div class="panel-head"><h3>MEDIA RECORDS</h3><button class="btn" onclick="addMedia()">+ Add record</button></div><div class="rows" id="mediaGrid"></div></div>
+</section>
+
+<section class="view" id="view-blog">
+  <h2 class="view-title">Blog & Updates</h2><p class="view-sub">Publish studio updates and articles.</p>
+  <div class="panel"><div class="panel-head"><h3>POSTS</h3><button class="btn primary" onclick="addBlog()">+ New post</button></div><div class="rows" id="blogList"></div></div>
+</section>
+
+<section class="view" id="view-settings">
+  <h2 class="view-title">Site Settings</h2><p class="view-sub">Global metadata and backend connection status.</p>
+  <div class="two">
+    <div class="panel"><div class="panel-head"><h3>GLOBAL SETTINGS</h3></div><div class="editor" id="settingsForm"></div></div>
+    <div class="panel"><div class="panel-head"><h3>BACKEND</h3></div><div class="editor">
+      <div class="row"><div class="grow"><b>Firebase Authentication</b><span id="settingsAdmin">Checking…</span></div><span class="pill green">READY</span></div>
+      <div class="row"><div class="grow"><b>n8n Admin Gateway</b><span>POST /webhook/nextframe-admin</span></div><span class="pill green">READY</span></div>
+      <div class="row"><div class="grow"><b>Firestore</b><span>next-frame-ai-prod / default</span></div><span class="pill green">READY</span></div>
+      <div class="row"><div class="grow"><b>Google Cloud Storage</b><span>gs://next-frame-ai-data</span></div><span class="pill">MEDIA</span></div>
+      <button class="btn" style="margin-top:12px" onclick="loadRemote()">↻ Read current Firestore data</button>
+    </div></div>
+  </div>
+</section>
+
+</div></main></div>
+
+<div id="modal" class="modal"><div class="modal-card"><div class="modal-head"><h3 id="modalTitle">Editor</h3><button class="btn" onclick="closeModal()">Close</button></div><div class="modal-body" id="modalBody"></div></div></div>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
+<script>
+const NEXTFRAME_FIREBASE_CONFIG={
+  apiKey:"AIzaSyAMDL3Mm-B5sBVDCZ0JiJgvO1gWIk5Pn-U",
+  authDomain:"next-frame-ai-prod.firebaseapp.com",
+  projectId:"next-frame-ai-prod",
+  storageBucket:"next-frame-ai-prod.firebasestorage.app",
+  messagingSenderId:"1041274102550",
+  appId:"1:1041274102550:web:7cdb04909973ecd50da637",
+  measurementId:"G-G2PZX1KLLE"
+};
+const NEXTFRAME_ADMIN_ALLOWLIST=["info@nextframeai.in"];
+const N8N_ADMIN_ENDPOINT="https://sponsors-structured-few-streaming.trycloudflare.com/webhook/nextframe-admin";
+
+const SERVICE_SEED=[
+["01","AI Product Design & Commercial Advertising","Product concepts, launch films and commercial creatives built for brands that need attention, clarity and conversion.",["Product Launch Films","Commercial Ads","Product Visual Campaigns","Brand Campaign Films"]],
+["02","Worldbuilding & Character Design","A coherent visual universe for your film, show, campaign or brand — from characters to environments and visual rules.",["Character Design","Film Worlds","Brand Worlds","Visual Bibles"]],
+["03","Motion Graphics, 3D & VFX","Motion design, Blender 3D, compositing and finishing for cinematic and commercial production.",["Motion Graphics","Blender 3D","VFX & Compositing","Post Production"]],
+["04","AI Film, Drama & Audio Drama Production","AI-assisted production for films, drama shows and audio-first narratives, with a focus on repeatable visual continuity.",["Drama Prompt Production","Film Visual Development","Audio Drama Visuals","Show Promos"]],
+["05","Hindi Script, Screenplay & Voice Over","Hindi-first writing and voice production for films, advertisements, shows and branded storytelling.",["Script Writing","Screenplay","Voice Over","Dialogue & Adaptation"]],
+["06","Studio & Team Collaboration","Flexible AI creative capacity for studios, agencies, filmmakers and production teams working on ongoing projects.",["Ongoing Support","Studio Collaboration","Campaign Teams","Custom AI Pipelines"]]
+];
+
+const INITIAL_STATE={
+ schemaVersion:"nextframeai-admin-v1",revision:1,updatedAt:"",site:"nextframeai.in",
+ storage:{provider:"google-cloud-storage",bucket:"gs://next-frame-ai-data",publicAccess:"not-public",imagesRoot:"images/",documentsRoot:"documents/",brandRoot:"brand/",privateRoot:"private/",videoProvider:"youtube"},
+ services:SERVICE_SEED.map((s,i)=>({id:"service-"+(i+1).toString().padStart(2,"0"),code:s[0],title:s[1],description:s[2],status:"published",visible:true,order:i+1,thumbnailPath:"",heroMedia:{type:"image",ref:""},subservices:s[3].map((t,j)=>({id:"service-"+(i+1)+"-sub-"+(j+1),order:j+1,title:t,status:"published",visible:true,overview:"",details:"",deliverables:"",sample:{type:"youtube",ref:""},thumbnailPath:"",faqEnabled:true}))})),
+ hero:{status:"published",headline:"Where Stories Ignite. Frames Come Alive.",subheadline:"",mediaType:"image",mediaRef:"",ctaText:"Explore Services",ctaTarget:"#services"},
+ blocks:[],blog:[],media:[],
+ siteSettings:{title:"NEXT FRAME AI — Where Stories Ignite. Frames Come Alive.",description:"",ogImage:"",favicon:"",contactEmail:"info@nextframeai.in"}
+};
+
+let state=structuredClone(INITIAL_STATE),selectedService=state.services[0].id;
+let firebaseReady=false,firebaseAuth=null,currentAdmin=null,remoteBusy=false;
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const esc=v=>String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+const toast=m=>{const t=$("#syncText");if(t)t.textContent=m;const b=$("#backendDetail");if(b)b.textContent=m;clearTimeout(window.__toast);window.__toast=setTimeout(()=>{if(t)t.textContent="CMS sync ready";if(b)b.textContent="Remote CMS sync enabled"},3000)};
+const localSave=()=>{state.revision=Number(state.revision||0)+1;state.updatedAt=new Date().toISOString();localStorage.setItem("nextframeai_admin_draft",JSON.stringify(state))};
+
+function loadLocal(){
+ try{
+  const x=JSON.parse(localStorage.getItem("nextframeai_admin_draft"));
+  if(x?.schemaVersion==="nextframeai-admin-v1"&&x?.site==="nextframeai.in"&&Array.isArray(x.services))state=x;
+ }catch{}
+}
+function nav(v){$$(".nav button").forEach(b=>b.classList.toggle("active",b.dataset.view===v));$$(".view").forEach(x=>x.classList.toggle("active",x.id==="view-"+v));$("#crumb").textContent=v[0].toUpperCase()+v.slice(1);render()}
+function service(id){selectedService=id;renderServices()}
+function drafts(){return state.services.reduce((n,s)=>n+(s.status==="draft"?1:0)+(Array.isArray(s.subservices)?s.subservices.filter(x=>x?.status==="draft").length:0),0)}
+function render(){renderDashboard();renderServices();renderHero();renderBlocks();renderMedia();renderBlog();renderSettings()}
+
+function renderDashboard(){
+ $("#kServices").textContent=state.services.filter(x=>x.visible).length;
+ $("#kSubs").textContent=state.services.reduce((n,s)=>n+(Array.isArray(s.subservices)?s.subservices.filter(x=>x?.visible).length:0),0);
+ $("#kMedia").textContent=state.media.length;
+ $("#kDrafts").textContent=drafts();
+ $("#serviceSnapshot").innerHTML=state.services.map(x=>`<div class="row"><div class="num">${x.code}</div><div class="grow"><b>${esc(x.title)}</b><span>${Array.isArray(x.subservices)?x.subservices.length:0} branches · ${x.visible?"Visible":"Hidden"}</span></div><span class="pill ${x.status==="published"?"green":"gold"}">${x.status}</span><button class="iconbtn" onclick="nav('services');service('${x.id}')">→</button></div>`).join("");
+ $("#activity").innerHTML=[["Content model","6 services / 24 sub-services","READY"],["Storage","Google Cloud Storage","READY"],["Video delivery","YouTube","READY"],["Backend","Firebase → n8n → Firestore",firebaseReady?"READY":"WAITING"]].map(x=>`<div class="row"><div class="grow"><b>${x[0]}</b><span>${x[1]}</span></div><span class="pill ${x[2]==="READY"?"green":""}">${x[2]}</span></div>`).join("");
+}
+
+function renderServices(){
+ const q=String($("#serviceSearch")?.value||"").toLowerCase();
+ const services=Array.isArray(state.services)?state.services:[];
+ if(!services.length){
+  $("#serviceList").innerHTML=`<div class="empty">No services available.</div>`;
+  $("#serviceEditor").innerHTML=`<div class="empty">No service selected.</div>`;
+  return;
+ }
+ $("#serviceList").innerHTML=services
+  .filter(x=>String(x?.title??"").toLowerCase().includes(q))
+  .map(x=>{
+    const subs=Array.isArray(x.subservices)?x.subservices:[];
+    return `<div class="service-item ${selectedService===x.id?"active":""}" onclick="service('${esc(x.id)}')"><b>${esc(x.code)} · ${esc(x.title||"Untitled service")}</b><span>${subs.length} branches · ${esc(x.status||"draft")} · ${x.visible?"visible":"hidden"}</span></div>`;
+  }).join("") || `<div class="empty">No matching services.</div>`;
+ const s=services.find(x=>x.id===selectedService)||services[0];
+ selectedService=s.id;
+ const subs=Array.isArray(s.subservices)?s.subservices:[];
+ $("#serviceEditor").innerHTML=`<div class="editor-head"><div><div class="eyebrow">SERVICE ${esc(s.code||"")}</div><h2 class="title" style="font-size:22px">${esc(s.title||"Untitled service")}</h2><p class="subtitle">${esc(s.description||"")}</p></div><div class="editor-actions"><button class="btn" onclick="moveService(-1)">↑</button><button class="btn" onclick="moveService(1)">↓</button><button class="btn gold" onclick="toggleVisible()">${s.visible?"Hide":"Show"}</button><button class="btn primary" onclick="saveService()">Save</button></div></div>
+ <div class="formgrid"><div class="field"><label>Service title</label><input id="sTitle" value="${esc(s.title||"")}"></div><div class="field"><label>Status</label><select id="sStatus"><option ${s.status==="published"?"selected":""}>published</option><option ${s.status==="draft"?"selected":""}>draft</option><option ${s.status==="archived"?"selected":""}>archived</option></select></div><div class="field full"><label>Overview</label><textarea id="sDesc">${esc(s.description||"")}</textarea></div><div class="field full"><label>GCS thumbnail path</label><input id="sThumb" value="${esc(s.thumbnailPath||"")}" placeholder="images/services/your-image.webp"></div></div>
+ <div class="panel-head" style="margin:22px 0 0"><h3>SUB-SERVICES · ${subs.length}</h3><button class="btn" onclick="addSub()">+ Add branch</button></div><div class="subgrid">${subs.map((x,i)=>`<div class="subitem"><div class="mini">${String(i+1).padStart(2,"0")}</div><div><b>${esc(x?.title||"Untitled branch")}</b><span>${esc(x?.status||"draft")} · sample ${x?.sample?.ref?"set":"not set"} · FAQ ${x?.faqEnabled?"on":"off"}</span></div><button class="iconbtn" onclick="editSub('${esc(x?.id||"")}')">✎</button></div>`).join("")}</div>`;
+}
+
+async function saveService(){
+ const s=state.services.find(x=>x.id===selectedService);if(!s)return;
+ s.title=$("#sTitle").value.trim();s.description=$("#sDesc").value.trim();s.status=$("#sStatus").value;s.thumbnailPath=$("#sThumb").value.trim();
+ localSave();render();toast("Saving service…");
+ try{
+  await NextFrameBackend.write("update","service",s,s.id);
+  for(const sub of s.subservices)await NextFrameBackend.write("update","subservice",{...sub,parent:s.id},sub.id);
+  toast("✓ Service saved to Firestore");
+ }catch(e){console.error(e);toast("Local save only — backend error: "+e.message)}
+}
+function toggleVisible(){const s=state.services.find(x=>x.id===selectedService);s.visible=!s.visible;localSave();render();saveService()}
+function moveService(d){let i=state.services.findIndex(x=>x.id===selectedService),j=i+d;if(j<0||j>=state.services.length)return;[state.services[i],state.services[j]]=[state.services[j],state.services[i]];state.services.forEach((x,k)=>x.order=k+1);localSave();render();saveService()}
+function addSub(){const s=state.services.find(x=>x.id===selectedService);const id=crypto.randomUUID();s.subservices.push({id,order:s.subservices.length+1,title:"New Service Branch",status:"draft",visible:true,overview:"",details:"",deliverables:"",sample:{type:"youtube",ref:""},thumbnailPath:"",faqEnabled:true});localSave();editSub(id)}
+function editSub(id){
+ const s=state.services.find(x=>x.id===selectedService),x=s.subservices.find(y=>y.id===id);if(!x)return;
+ $("#modalTitle").textContent="Edit sub-service";
+ $("#modalBody").innerHTML=`<div class="formgrid"><div class="field full"><label>Title</label><input id="eTitle" value="${esc(x.title)}"></div><div class="field"><label>Status</label><select id="eStatus"><option ${x.status==="published"?"selected":""}>published</option><option ${x.status==="draft"?"selected":""}>draft</option><option ${x.status==="archived"?"selected":""}>archived</option></select></div><div class="field"><label>YouTube Video ID / URL</label><input id="eVideo" value="${esc(x.sample.ref)}"></div><div class="field full"><label>GCS thumbnail path</label><input id="eThumb" value="${esc(x.thumbnailPath)}" placeholder="images/services/..."></div><div class="field full"><label>Overview</label><textarea id="eOverview">${esc(x.overview)}</textarea></div><div class="field full"><label>Details / workflow / deliverables</label><textarea id="eDetails">${esc(x.details)}</textarea></div><div class="field full"><label>FAQ seed / notes</label><textarea id="eFaq">${esc(x.faqNotes||"")}</textarea></div></div><div style="margin-top:15px"><button class="btn primary" onclick="saveSub('${id}')">Save sub-service</button></div>`;
+ $("#modal").classList.add("show")
+}
+function normalizeYouTubeRef(v){v=String(v||"").trim();if(!v)return"";try{const u=new URL(v);if(u.hostname==="youtu.be")return u.pathname.slice(1).split("/")[0];if(u.searchParams.get("v"))return u.searchParams.get("v");const m=u.pathname.match(/\/(?:embed|shorts|live)\/([^/?#]+)/);return m?m[1]:""}catch{return /^[A-Za-z0-9_-]{6,20}$/.test(v)?v:""}}
+async function saveSub(id){
+ const s=state.services.find(x=>x.id===selectedService),x=s.subservices.find(y=>y.id===id);if(!x)return;
+ x.title=$("#eTitle").value.trim();x.status=$("#eStatus").value;x.sample.ref=normalizeYouTubeRef($("#eVideo").value);x.thumbnailPath=$("#eThumb").value.trim();x.overview=$("#eOverview").value.trim();x.details=$("#eDetails").value.trim();x.faqNotes=$("#eFaq").value.trim();
+ localSave();closeModal();render();toast("Saving sub-service…");
+ try{await NextFrameBackend.write("update","subservice",{...x,parent:s.id},x.id);toast("✓ Sub-service saved to Firestore")}catch(e){toast("Local save only — backend error: "+e.message)}
+}
+
+function renderHero(){const h=state.hero;$("#heroForm").innerHTML=`<div class="formgrid"><div class="field full"><label>Hero headline</label><input id="hTitle" value="${esc(h.headline)}"></div><div class="field full"><label>Hero subheadline</label><textarea id="hSub">${esc(h.subheadline)}</textarea></div><div class="field"><label>Media type</label><select id="hType"><option ${h.mediaType==="image"?"selected":""}>image</option><option ${h.mediaType==="youtube"?"selected":""}>youtube</option></select></div><div class="field"><label>Media reference</label><input id="hRef" value="${esc(h.mediaRef)}" placeholder="GCS path or YouTube ID"></div><div class="field"><label>CTA text</label><input id="hCta" value="${esc(h.ctaText)}"></div><div class="field"><label>CTA target</label><input id="hTarget" value="${esc(h.ctaTarget)}"></div></div><div style="margin-top:15px"><button class="btn primary" onclick="saveHero()">Save hero</button></div>`}
+async function saveHero(){Object.assign(state.hero,{headline:$("#hTitle").value,subheadline:$("#hSub").value,mediaType:$("#hType").value,mediaRef:$("#hRef").value.trim(),ctaText:$("#hCta").value,ctaTarget:$("#hTarget").value});localSave();render();try{await NextFrameBackend.write("update","hero",state.hero,"main");toast("✓ Hero saved to Firestore")}catch(e){toast("Local save only — backend error: "+e.message)}}
+
+function renderBlocks(){$("#blockList").innerHTML=state.blocks.length?state.blocks.map((b,i)=>`<div class="row"><div class="num">${String(i+1).padStart(2,"0")}</div><div class="grow"><b>${esc(b.title)}</b><span>${b.type} · ${b.status}</span></div><button class="iconbtn" onclick="editBlock('${b.id}')">✎</button></div>`).join(""):`<div class="empty">No blocks configured yet.</div>`}
+function addBlock(){const id=crypto.randomUUID();state.blocks.push({id,type:"media-strip",title:"New Content Block",status:"draft",data:{}});localSave();editBlock(id)}
+function editBlock(id){const b=state.blocks.find(x=>x.id===id);$("#modalTitle").textContent="Content block";$("#modalBody").innerHTML=`<div class="formgrid"><div class="field"><label>Block type</label><select id="blType"><option>hero</option><option selected>media-strip</option><option>text</option><option>cta</option><option>trust</option><option>process</option><option>custom</option></select></div><div class="field"><label>Status</label><select id="blStatus"><option ${b.status==="draft"?"selected":""}>draft</option><option ${b.status==="published"?"selected":""}>published</option><option ${b.status==="archived"?"selected":""}>archived</option></select></div><div class="field full"><label>Title</label><input id="blTitle" value="${esc(b.title)}"></div><div class="field full"><label>Block JSON / content payload</label><textarea style="min-height:180px" id="blData">${esc(JSON.stringify(b.data||{},null,2))}</textarea></div></div><div style="margin-top:15px"><button class="btn primary" onclick="saveBlock('${id}')">Save block</button></div>`;$("#modal").classList.add("show")}
+async function saveBlock(id){const b=state.blocks.find(x=>x.id===id);try{b.type=$("#blType").value;b.status=$("#blStatus").value;b.title=$("#blTitle").value;b.data=JSON.parse($("#blData").value||"{}")}catch{toast("Invalid JSON");return}localSave();closeModal();renderBlocks();try{await NextFrameBackend.write("update","block",b,b.id);toast("✓ Block saved to Firestore")}catch(e){toast("Local save only — backend error: "+e.message)}}
+
+function renderMedia(){$("#mediaGrid").innerHTML=state.media.length?state.media.map(m=>`<div class="row"><div class="num">◉</div><div class="grow"><b>${esc(m.name||"Untitled")}</b><span>${esc(m.type)} · ${esc(m.path||m.ref||"No reference")}</span></div><span class="pill">${esc(m.status||"draft")}</span></div>`).join(""):`<div class="empty">No media records yet.</div>`}
+async function addMedia(){const name=prompt("Asset name");if(!name)return;const type=prompt("Type: image / document / youtube","image");if(!type)return;const ref=prompt("GCS path or YouTube ID","");const m={id:crypto.randomUUID(),name,type,ref,path:type==="image"?"images/services/":type==="document"?"documents/":"",status:"draft"};state.media.push(m);localSave();renderMedia();try{await NextFrameBackend.write("create","media",m,m.id);toast("✓ Media record saved")}catch(e){toast("Local save only — backend error: "+e.message)}}
+
+function renderBlog(){$("#blogList").innerHTML=state.blog.length?state.blog.map((b,i)=>`<div class="row"><div class="num">${String(i+1).padStart(2,"0")}</div><div class="grow"><b>${esc(b.title)}</b><span>${b.status} · ${esc(b.image||"No cover")}</span></div><button class="iconbtn" onclick="editBlog('${b.id}')">✎</button></div>`).join(""):`<div class="empty">No blog posts yet.</div>`}
+function addBlog(){const id=crypto.randomUUID();state.blog.push({id,title:"New Feature / Update",slug:"new-feature-update",status:"draft",image:"",excerpt:"",body:""});localSave();editBlog(id)}
+async function saveBlog(id){const b=state.blog.find(x=>x.id===id);Object.assign(b,{title:$("#bTitle").value,slug:$("#bSlug").value,status:$("#bStatus").value,image:$("#bImage").value,excerpt:$("#bExcerpt").value,body:$("#bBody").value});localSave();closeModal();renderBlog();try{await NextFrameBackend.write("update","blog-post",b,b.id);toast("✓ Blog post saved")}catch(e){toast("Local save only — backend error: "+e.message)}}
+function editBlog(id){const b=state.blog.find(x=>x.id===id);$("#modalTitle").textContent="Blog post";$("#modalBody").innerHTML=`<div class="formgrid"><div class="field full"><label>Title</label><input id="bTitle" value="${esc(b.title)}"></div><div class="field"><label>Slug</label><input id="bSlug" value="${esc(b.slug)}"></div><div class="field"><label>Status</label><select id="bStatus"><option ${b.status==="draft"?"selected":""}>draft</option><option ${b.status==="published"?"selected":""}>published</option><option ${b.status==="archived"?"selected":""}>archived</option></select></div><div class="field full"><label>GCS cover path</label><input id="bImage" value="${esc(b.image)}" placeholder="images/blog/..."></div><div class="field full"><label>Excerpt</label><textarea id="bExcerpt">${esc(b.excerpt)}</textarea></div><div class="field full"><label>Body</label><textarea style="min-height:180px" id="bBody">${esc(b.body)}</textarea></div></div><div style="margin-top:15px"><button class="btn primary" onclick="saveBlog('${id}')">Save post</button></div>`;$("#modal").classList.add("show")}
+
+function renderSettings(){$("#settingsForm").innerHTML=`<div class="formgrid"><div class="field full"><label>Site title</label><input id="setTitle" value="${esc(state.siteSettings.title)}"></div><div class="field full"><label>Meta description</label><textarea id="setDesc">${esc(state.siteSettings.description)}</textarea></div><div class="field"><label>OG image GCS path</label><input id="setOg" value="${esc(state.siteSettings.ogImage)}"></div><div class="field"><label>Favicon GCS path</label><input id="setFav" value="${esc(state.siteSettings.favicon)}"></div><div class="field"><label>Contact</label><input id="setEmail" value="${esc(state.siteSettings.contactEmail)}"></div></div><div style="margin-top:15px"><button class="btn primary" onclick="saveSettings()">Save site settings</button></div>`}
+async function saveSettings(){Object.assign(state.siteSettings,{title:$("#setTitle").value,description:$("#setDesc").value,ogImage:$("#setOg").value,favicon:$("#setFav").value,contactEmail:$("#setEmail").value});localSave();render();try{await NextFrameBackend.write("update","site",state.siteSettings,"main");toast("✓ Site settings saved")}catch(e){toast("Local save only — backend error: "+e.message)}}
+
+function exportJSON(){const envelope={schema:"nextframeai-admin-export",version:"1.0",exportedAt:new Date().toISOString(),source:"nextframeai.in",revision:Number(state.revision||0),data:state};const a=document.createElement("a"),blob=new Blob([JSON.stringify(envelope,null,2)],{type:"application/json"});a.href=URL.createObjectURL(blob);a.download="nextframeai-content-draft.json";a.click();URL.revokeObjectURL(a.href)}
+function importJSON(){const i=document.createElement("input");i.type="file";i.accept=".json";i.onchange=()=>{const f=i.files[0],r=new FileReader();r.onload=()=>{try{const raw=JSON.parse(r.result),x=raw?.schema==="nextframeai-admin-export"?raw.data:raw;if(x.schemaVersion!=="nextframeai-admin-v1"||x.site!=="nextframeai.in")throw 0;state=x;localSave();render();toast("Draft imported")}catch{toast("Invalid NextFrameAI JSON")}};r.readAsText(f)};i.click()}
+function preview(){window.open("index.html","_blank","noopener")}
+function payloadPreview(){const p=NextFrameBackend.buildPayload("update","service-01",state.services[0],{revision:Number(state.revision||1)});$("#modalTitle").textContent="n8n payload contract";$("#modalBody").innerHTML=`<div class="notice" style="color:#777;margin-bottom:12px">Live endpoint + Firebase ID token are used when a save is performed.</div><pre class="code">${esc(JSON.stringify(p,null,2))}</pre>`;$("#modal").classList.add("show")}
+function closeModal(){$("#modal").classList.remove("show")}
+function toggleProfileMenu(){$("#profileMenu")?.classList.toggle("show")}
+function showAuthError(message){const e=$("#authError");if(e){e.textContent=message;e.classList.add("show")}}
+function clearAuthError(){$("#authError")?.classList.remove("show")}
+function signOutAdmin(){if(firebaseAuth)return firebaseAuth.signOut()}
+
+const NextFrameBackend=(()=>{
+ const CONTRACT={version:"1.0",transport:"https",auth:"firebase-id-token",clientSecretAllowed:false,directDatabaseAccess:false,n8nRole:"orchestration-validation",databaseRole:"source-of-truth"};
+ function buildPayload(operation,entity,data={},id=null){
+  return{contractVersion:CONTRACT.version,requestId:"nf_"+Date.now().toString(36)+"_"+Math.random().toString(36).slice(2,7),timestamp:new Date().toISOString(),operation,entity,id,revision:Number(state.revision||0),data,client:{site:"nextframeai.in",source:"admin-ui",schema:"cms-v2"}}
+ }
+ async function request(operation,entity,data={},id=null){
+  if(!firebaseAuth?.currentUser)throw new Error("ADMIN_NOT_AUTHENTICATED");
+  if(!isAuthorizedAdmin(firebaseAuth.currentUser))throw new Error("ADMIN_NOT_AUTHORIZED");
+  const token=await firebaseAuth.currentUser.getIdToken(true);
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),20000);
+  try{
+   const r=await fetch(N8N_ADMIN_ENDPOINT,{method:"POST",headers:{"Content-Type":"application/json","Authorization":"Bearer "+token},body:JSON.stringify(buildPayload(operation,entity,data,id)),signal:controller.signal});
+   const text=await r.text();let out=null;try{out=text?JSON.parse(text):null}catch{out=text}
+   if(!r.ok)throw new Error("HTTP_"+r.status+(out?.error||out?.message?": "+(out.error||out.message):""));
+   if(out?.ok===false)throw new Error(out.error||"BACKEND_REJECTED");
+   return out;
+  }finally{clearTimeout(timer)}
+ }
+ async function write(operation,entity,data,id){return request(operation,entity,data,id)}
+ async function list(entity){return request("list",entity,{},null)}
+ return{contract:CONTRACT,buildPayload,write,list,request}
+})();
+
+function isAuthorizedAdmin(user){return !!(user?.email&&NEXTFRAME_ADMIN_ALLOWLIST.some(x=>x.toLowerCase()===user.email.toLowerCase()))}
+function updateAdminProfile(user){const name=user.displayName||user.email.split("@")[0]||"Admin",email=user.email||"",initials=name.split(/\s+/).map(x=>x[0]).join("").slice(0,2).toUpperCase();const a=$("#profileAvatar");if(a){a.src=user.photoURL||"";a.onerror=()=>{a.removeAttribute("src");a.alt=initials}}$("#profileName").textContent=name;$("#profileEmail").textContent=email;$("#profileFullName").textContent=name;$("#profileEmailFull").textContent=email;$("#settingsAdmin").textContent=email}
+function handleAdminAuthState(user){
+ if(user&&isAuthorizedAdmin(user)){currentAdmin=user;$("#authOverlay").classList.add("hidden");$("#adminApp").classList.remove("auth-locked");$("#authBanner").classList.add("show");updateAdminProfile(user);firebaseReady=true;render();loadRemote()}
+ else if(user){currentAdmin=null;showAuthError("This Google account is not authorized for NextFrameAI Admin.");firebaseAuth.signOut()}
+ else{$("#authOverlay").classList.remove("hidden");$("#authBanner").classList.remove("show");currentAdmin=null}
+}
+function initFirebaseAuth(){try{if(!firebase.apps.length)firebase.initializeApp(NEXTFRAME_FIREBASE_CONFIG);firebaseAuth=firebase.auth();firebaseAuth.onAuthStateChanged(handleAdminAuthState)}catch(e){showAuthError(e.message)}}
+async function signInWithGoogle(){if(!firebaseReady&&firebaseAuth==null){showAuthError("Firebase is still loading.");return}try{const provider=new firebase.auth.GoogleAuthProvider();provider.setCustomParameters({prompt:"select_account"});await firebaseAuth.signInWithPopup(provider)}catch(e){showAuthError(e?.message||"Google sign-in failed.")}}
+
+function decodeRemoteRows(result){
+ const arr=Array.isArray(result?.data)?result.data:(result?.data?[result.data]:[]);
+ return arr.filter(Boolean);
+}
+async function loadRemote(){
+ if(remoteBusy||!firebaseAuth?.currentUser)return;
+ remoteBusy=true;toast("Reading Firestore…");
+ try{
+  const [site,hero,services,subs,blocks,blogs,media]=await Promise.all([
+   NextFrameBackend.list("site"),NextFrameBackend.list("hero"),NextFrameBackend.list("service"),NextFrameBackend.list("subservice"),NextFrameBackend.list("block"),NextFrameBackend.list("blog-post"),NextFrameBackend.list("media")
+  ]);
+  const ss=decodeRemoteRows(site),hh=decodeRemoteRows(hero),sv=decodeRemoteRows(services),su=decodeRemoteRows(subs),bl=decodeRemoteRows(blocks),bp=decodeRemoteRows(blogs),mm=decodeRemoteRows(media);
+  if(ss[0])state.siteSettings={...state.siteSettings,...ss[0]};
+  if(hh[0])state.hero={...state.hero,...hh[0]};
+  if(sv.length){
+   state.services=sv.sort((a,b)=>(a.order||0)-(b.order||0)).map((x,i)=>({...x,subservices:su.filter(y=>y.parent===x.id).sort((a,b)=>(a.order||0)-(b.order||0))}));
+  }
+  state.blocks=bl;state.blog=bp;state.media=mm;
+  localSave();render();toast("✓ Firestore data loaded");
+ }catch(e){console.error(e);toast("Firestore read failed: "+e.message)}
+ finally{remoteBusy=false}
+}
+
+async function publishAll(){
+ if(!firebaseAuth?.currentUser){toast("Login required");return}
+ if(!confirm("Publish current Admin data to Firestore?"))return;
+ try{
+  await NextFrameBackend.write("update","site",{...state.siteSettings,status:"published"},"main");
+  await NextFrameBackend.write("update","hero",{...state.hero,status:"published"},"main");
+  for(const s of state.services){await NextFrameBackend.write("update","service",{...s,status:"published"},s.id);for(const sub of s.subservices)await NextFrameBackend.write("update","subservice",{...sub,status:"published",parent:s.id},sub.id)}
+  for(const b of state.blocks)await NextFrameBackend.write("update","block",{...b,status:"published"},b.id);
+  for(const b of state.blog)await NextFrameBackend.write("update","blog-post",{...b,status:"published"},b.id);
+  for(const m of state.media)await NextFrameBackend.write("update","media",{...m,status:"published"},m.id);
+  state.services.forEach(s=>{s.status="published";s.subservices.forEach(x=>x.status="published")});state.hero.status="published";state.blocks.forEach(x=>x.status="published");state.blog.forEach(x=>x.status="published");state.media.forEach(x=>x.status="published");localSave();render();toast("✓ Published / synced to Firestore");
+ }catch(e){console.error(e);toast("Publish stopped: "+e.message)}
+}
+
+document.addEventListener("click",e=>{const b=e.target.closest("[data-view]");if(b)nav(b.dataset.view);if(!e.target.closest(".profile"))$("#profileMenu")?.classList.remove("show")});
+window.addEventListener("DOMContentLoaded",()=>{
+ loadLocal();
+ try{render()}catch(e){console.error("Initial render failed:",e)}
+ $("#serviceSearch")?.addEventListener("input",renderServices);
+ initFirebaseAuth();
+});
+</script>
+</body>
+</html>
